@@ -1,71 +1,92 @@
-Book Table of Contents Manager (Linked List Implementation)
+# Book Table of Contents Manager (Linked List Implementation)
 
-This project implements a hierarchical "Table of Contents" management system using Java. It stores headings and sub-headings using a custom Linked List data structure, without relying on pre-made collection classes (like java.util.LinkedList).
-Project Overview
+A Java console application that models a book's table of contents as a hierarchy of headings and sub-headings (for example `2.2.1`). The hierarchy is built on a custom linked structure written from scratch: the program does not use `java.util` collections, and even helpers such as string length and string comparison are implemented by hand.
 
-The main goal of this project is to model the hierarchical structure of a book using dynamic memory allocation. Each node in the structure represents a heading and contains:
+## How it works
 
-   The heading text.
+Each heading is a `Node` with three fields:
 
-   A pointer to its parent heading.
+- `heading`: the heading text
+- `child`: a reference to its first sub-heading
+- `sibling`: a reference to the next heading on the same level
 
-   A linked list containing its sub-headings (children).
+Every level of the table of contents is therefore a singly linked list of siblings, and the `child` references link the levels into a tree (a first-child / next-sibling tree). Positions such as `2.2.1` are parsed digit by digit to walk down the tree, and the structure is printed with a recursive traversal.
 
-Features
+| File | Role |
+|------|------|
+| `Node.java` | A heading with its `child` and `sibling` references |
+| `List.java` | Path navigation, insertion rules and recursive printing |
+| `Methods.java` | Hand-written string helpers: command parsing, length, comparison, dot counting |
+| `DataStructureAndAlgorithmsProject.java` | Entry point: loads a sample table of contents and runs the command loop |
 
-The program accepts commands from the console to build and display the tree structure.
-1. Adding a Heading (Add)
+## Commands
 
-You can insert a new heading at a specific hierarchical position. Format: Add, [Position], [Heading Name]
+When the program starts, it loads and prints a sample table of contents (a data structures course outline in Turkish). You can then type:
 
-  Logic: The program parses the position string (e.g., 2.2.1) and navigates the tree to insert the node.
+| Command | Effect |
+|---------|--------|
+| `Add, <position>, <heading>` | Inserts a heading at the given position, e.g. `Add, 2.2.4, Merge Sort` |
+| `print` | Prints the whole table of contents |
+| `Exit` | Ends the program |
 
-  Rules & Constraints:
+Separate the parts of an `Add` command with a comma followed by a space.
 
-  Duplicate Check: If a heading with the same name exists at the target level, the insertion is blocked.
+### Insertion rules
 
-  Empty Level: If the target list is empty, the node is inserted at the 1st position regardless of the requested index.
+- **Duplicate check:** a heading with the same name cannot be added twice to the same level.
+- **Empty level:** if the target level has no headings yet, the new heading becomes the first one, whatever index was requested.
+- **Index out of range:** if the requested index is larger than the level's size, the heading is added to the end of the level.
+- **Missing parent:** if the parent position does not exist (for example adding `5.1` when there is no heading `5`), the insertion is rejected with an error.
+- **Shifting:** inserting at an occupied position moves the existing heading and the ones after it down by one.
 
-  Index Out of Bounds: If the requested position is larger than the list size (e.g., requesting index 7 in a list of 3 items), the node is added to the end of the list.
+## Example
 
-  Missing Parent: If the parent path (e.g., 2.1) does not exist, the program cannot add a child (e.g., 2.1.1) and returns an error.
+```text
+Enter Command:
+Add, 3.1, Linear Search
+Heading Succesfully added
 
-2. Printing the Structure (print)
+Enter Command:
+Add, 2.2.4, Merge Sort
+Heading Succesfully added
 
-Displays the entire Table of Contents in a readable, indented format showing the hierarchy (e.g., 1.2.1. Heading Name).
-Usage Examples
+Enter Command:
+Add, 5.1, Heap
+Error: The heading does not exist in the hierarchy, so the insertion cannot be performed
 
-Input:
-Plaintext
+Enter Command:
+Add, 3.1, Linear Search
+Error: Heading Already exist
 
-Add, 1, Data Structures
-Add, 1.1, What is Data Structure
-Add, 2, Sorting
-Add, 2.1, Bubble Sort
-Add, 2.2, Quick Sort
+Enter Command:
 print
+----- LIST -----
+...
+2. Sıralama
+    2.1. Siralama Nedir
+    2.2. Siralama Algoritmalari
+        2.2.1. Araya Sokma Siralamasi
+        2.2.2. Secmeli Sıralama
+        2.2.3. Kabarcik Siralama
+        2.2.4. Merge Sort
+3. Arama
+    3.1. Linear Search
+4. Agaclar
+    4.1. Agac Nedir
+---------------
+```
 
-Expected Output:
-Plaintext
+(The listing is shortened; `2.2.1` has sub-headings of its own in the sample data.)
 
-1. Data Structures
-1.1. What is Data Structure
-2. Sorting
-2.1. Bubble Sort
-2.2. Quick Sort
+## How to run
 
-Technical Details
+Requires JDK 15 or later (the code uses text blocks). Tested with JDK 21.
 
-   Language: Java
+```bash
+git clone https://github.com/lebo2611/Book-Table-of-Contents-Manager-Linked-List-Implementation.git
+cd Book-Table-of-Contents-Manager-Linked-List-Implementation
+javac -d out src/datastructureandalgorithmsproject/*.java
+java -cp out datastructureandalgorithmsproject.DataStructureAndAlgorithmsProject
+```
 
-   Data Structure: Doubly or Singly Linked List (Custom Implementation).
-
-   Recursive Logic: Used to navigate through the depth of the headings.
-
-How to Run
-
-  1-)  Clone the repository
-  2-)  Compile the Java files
-  3-)  javac Main.java
-  4-)  Run the application
-  5-)  java Main
+You can also open the folder as a NetBeans project (it includes the Ant `build.xml`).
